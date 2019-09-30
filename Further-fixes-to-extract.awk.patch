@@ -1,0 +1,91 @@
+From f006165d77037b99e205496d8b79cb80e9f280c0 Mon Sep 17 00:00:00 2001
+From: "Arnold D. Robbins" <arnold@skeeve.com>
+Date: Thu, 31 May 2018 12:57:02 +0300
+Subject: [PATCH 063/289] Further fixes to extract.awk.
+
+---
+ awklib/eg/prog/extract.awk |   7 +-
+ awklib/extract.awk         |   7 +-
+ doc/ChangeLog              |   6 +
+ doc/gawk.info              | 479 +++++++++++++++++++------------------
+ doc/gawk.texi              |   7 +-
+ doc/gawktexi.in            |   7 +-
+ 6 files changed, 262 insertions(+), 251 deletions(-)
+
+diff --git a/awklib/eg/prog/extract.awk b/awklib/eg/prog/extract.awk
+index ff598e8e..0e9bcca3 100644
+--- a/awklib/eg/prog/extract.awk
++++ b/awklib/eg/prog/extract.awk
+@@ -30,7 +30,7 @@ BEGIN    { IGNORECASE = 1 }
+     }
+     if ($3 != curfile) {
+         if (curfile != "")
+-            filelist[curfile]++     # save to close later
++            filelist[curfile] = 1   # save to close later
+         curfile = $3
+     }
+ 
+@@ -61,8 +61,9 @@ BEGIN    { IGNORECASE = 1 }
+     }
+ }
+ END {
+-    for (f in filelist)
+-        close(filelist[f])
++    close(curfile)          # close the last one
++    for (f in filelist)     # close all the rest
++        close(f)
+ }
+ function unexpected_eof()
+ {
+diff --git a/awklib/extract.awk b/awklib/extract.awk
+index 96fc9498..0c20e299 100644
+--- a/awklib/extract.awk
++++ b/awklib/extract.awk
+@@ -30,7 +30,7 @@ BEGIN    { IGNORECASE = 1 }
+     }
+     if ($3 != curfile) {
+         if (curfile != "")
+-            filelist[curfile]++     # save to close later
++            filelist[curfile] = 1     # save to close later
+         curfile = $3
+     }
+ 
+@@ -61,8 +61,9 @@ BEGIN    { IGNORECASE = 1 }
+     }
+ }
+ END {
+-    for (f in filelist)
+-        close(filelist[f])
++    close(curfile)          # close the last one
++    for (f in filelist)     # close all the rest
++        close(f)
+ }
+ function unexpected_eof()
+ {
+diff --git a/doc/gawktexi.in b/doc/gawktexi.in
+index c645a8ec..e857747e 100644
+--- a/doc/gawktexi.in
++++ b/doc/gawktexi.in
+@@ -25741,7 +25741,7 @@ line.  That line is then printed to the output file:
+     @}
+     if ($3 != curfile) @{
+         if (curfile != "")
+-            filelist[curfile]++     # save to close later
++            filelist[curfile] = 1   # save to close later
+         curfile = $3
+     @}
+
+@@ -25798,8 +25798,9 @@ is finished:
+ @c file eg/prog/extract.awk
+ @group
+ END @{
+-    for (f in filelist)
+-        close(filelist[f])
++    close(curfile)          # close the last one
++    for (f in filelist)     # close all the rest
++        close(f)
+ @}
+ @end group
+ @c endfile
+--
+2.19.1
