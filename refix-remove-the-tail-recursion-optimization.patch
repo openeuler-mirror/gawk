@@ -1,0 +1,58 @@
+From 47316d294571673a8dbf1e9e435893e2660f46a8 Mon Sep 17 00:00:00 2001
+From: "Arnold D. Robbins" <arnold@skeeve.com>
+Date: Mon, 26 Mar 2018 10:45:01 +0300
+Subject: [PATCH] Remove the tail recursion optimization(refix).
+
+---
+ awkgram.c | 27 ++-------------------------
+ 1 file changed, 2 insertions(+), 25 deletions(-)
+
+diff --git a/awkgram.c b/awkgram.c
+index 52821eab..d3c4e830 100644
+--- a/awkgram.c
++++ b/awkgram.c
+@@ -2820,20 +2820,9 @@ regular_loop:
+ 			(yyval) = list_create((yyvsp[-3]));
+ 			(void) list_prepend((yyval), instruction(Op_push_i));
+ 			(yyval)->nexti->memory = dupnode(Nnull_string);
+-		} else {
+-			if (do_optimize
+-				&& (yyvsp[-1])->lasti->opcode == Op_func_call
+-				&& strcmp((yyvsp[-1])->lasti->func_name, in_function) == 0
+-			) {
+-				/* Do tail recursion optimization. Tail
+-				 * call without a return value is recognized
+-				 * in mk_function().
+-				 */
+-				((yyvsp[-1])->lasti + 1)->tail_call = true;
+-			}
+-
++		} else
+ 			(yyval) = list_append((yyvsp[-1]), (yyvsp[-3]));
+-		}
++
+ 		(yyval) = add_pending_comment((yyval));
+ 	  }
+ #line 2840 "awkgram.c" /* yacc.c:1646  */
+@@ -7156,18 +7145,6 @@ mk_function(INSTRUCTION *fi, INSTRUCTION *def)
+ 	thisfunc = fi->func_body;
+ 	assert(thisfunc != NULL);
+ 
+-	if (do_optimize && def->lasti->opcode == Op_pop) {
+-		/* tail call which does not return any value. */
+-
+-		INSTRUCTION *t;
+-
+-		for (t = def->nexti; t->nexti != def->lasti; t = t->nexti)
+-			;
+-		if (t->opcode == Op_func_call
+-		    && strcmp(t->func_name, thisfunc->vname) == 0)
+-			(t + 1)->tail_call = true;
+-	}
+-
+ 	/* add any pre-function comment to start of action for profile.c  */
+ 
+ 	if (function_comment != NULL) {
+-- 
+2.19.1
+

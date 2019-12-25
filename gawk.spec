@@ -4,7 +4,7 @@
 			 egrep -i "gawk_api_minor.*[0-9]+" | egrep -o "[0-9]")
 Name:		gawk
 Version:	4.2.1
-Release:	4
+Release:	5
 License:	GPLv3+ and GPLv2+ and LGPLv2+ and BSD
 Summary:	The GNU version of the AWK text processing utility
 URL:		https://www.gnu.org/software/gawk/
@@ -23,6 +23,9 @@ Patch6004:	Bug-fix-for-trailing-backslash-in-dynamic-regexp.patch
 Patch6005:	Fix-problem-with-MPFR-conversion-to-int-from-hex-num.patch
 Patch6006:	Fix-small-potential-memory-leak-for-intdiv.patch
 Patch6007:	Bug-fix-in-support-regexec.c.patch
+Patch6008:      0040-Fix-core-dump-upon-syntax-error.patch
+Patch6009:      0045-Fix-bug-with-in-FS.patch
+Patch6010:      refix-remove-the-tail-recursion-optimization.patch
 
 BuildRequires:	git gcc automake grep
 BuildRequires:	bison texinfo texinfo-tex ghostscript texlive-ec texlive-cm-super glibc-all-langpacks
@@ -121,5 +124,11 @@ install -m 0644 -p doc/gawkinet.{pdf,ps} ${RPM_BUILD_ROOT}%{_docdir}/%{name}
 %{_datadir}/locale/*
 
 %changelog
+* Mon Dec 16 2019 openEuler Buildteam <buildteam@openeuler.org> - 4.2.1-5
+- Type:enhancement
+- ID:NA
+- SUG:restart
+- DESC:quality enhancement synchronization github patch
+
 * Thu Aug 29 2019 openEuler Buildteam <buildteam@openeuler.org> - 4.2.1-4
 - Package Init

@@ -1,0 +1,298 @@
+From e0da6e47c9d1eaafcbe2b26c2ac9c5304b755efd Mon Sep 17 00:00:00 2001
+From: "Arnold D. Robbins" <arnold@skeeve.com>
+Date: Thu, 18 Apr 2019 20:15:15 +0300
+Subject: [PATCH] Fix core dump upon syntax error.
+
+---
+ awk.h            |  1 +
+ awkgram.c        |  2 +-
+ awkgram.y        |  2 +-
+ command.c        | 14 +++++++-------
+ command.y        | 14 +++++++-------
+ main.c           |  6 ++++++
+ test/Makefile.am |  4 +++-
+ test/Makefile.in |  9 ++++++++-
+ test/Maketests   |  5 +++++
+ test/synerr3.awk |  1 +
+ test/synerr3.ok  |  5 +++++
+ 11 files changed, 45 insertions(+), 18 deletions(-)
+ create mode 100644 test/synerr3.awk
+ create mode 100644 test/synerr3.ok
+
+diff --git a/awk.h b/awk.h
+index cdf683d1..679cbde5 100644
+--- a/awk.h
++++ b/awk.h
+@@ -1114,6 +1114,7 @@ extern NODE *Null_field;
+ extern NODE **fields_arr;
+ extern int sourceline;
+ extern char *source;
++extern int errcount;
+ extern int (*interpret)(INSTRUCTION *);	/* interpreter routine */
+ extern NODE *(*make_number)(double);	/* double instead of AWKNUM on purpose */
+ extern NODE *(*str2number)(NODE *);
+diff --git a/awkgram.c b/awkgram.c
+index d3c4e830..878a83a9 100644
+--- a/awkgram.c
++++ b/awkgram.c
+@@ -173,7 +173,7 @@ static int continue_allowed;	/* kludge for continue */
+ static char *tokstart = NULL;
+ static char *tok = NULL;
+ static char *tokend;
+-static int errcount = 0;
++int errcount = 0;
+ 
+ extern char *source;
+ extern int sourceline;
+diff --git a/awkgram.y b/awkgram.y
+index caed09e0..c16616f9 100644
+--- a/awkgram.y
++++ b/awkgram.y
+@@ -133,7 +133,7 @@ static int continue_allowed;	/* kludge for continue */
+ static char *tokstart = NULL;
+ static char *tok = NULL;
+ static char *tokend;
+-static int errcount = 0;
++int errcount = 0;
+ 
+ extern char *source;
+ extern int sourceline;
+diff --git a/command.c b/command.c
+index 0876f02f..90742dd7 100644
+--- a/command.c
++++ b/command.c
+@@ -90,7 +90,7 @@ static bool want_nodeval = false;
+ static int cmd_idx = -1;		/* index of current command in cmd table */
+ static int repeat_idx = -1;		/* index of last repeatable command in command table */
+ static CMDARG *arg_list = NULL;		/* list of arguments */
+-static long errcount = 0;
++static long dbg_errcount = 0;
+ static char *lexptr_begin = NULL;
+ static bool in_commands = false;
+ static int num_dim;
+@@ -1548,7 +1548,7 @@ yyreduce:
+   case 5:
+ #line 130 "command.y" /* yacc.c:1646  */
+     {
+-		if (errcount == 0 && cmd_idx >= 0) {
++		if (dbg_errcount == 0 && cmd_idx >= 0) {
+ 			Func_cmd cmdfunc;
+ 			bool terminate = false;
+ 			CMDARG *args;
+@@ -1616,7 +1616,7 @@ yyreduce:
+   case 23:
+ #line 219 "command.y" /* yacc.c:1646  */
+     {
+-		if (errcount == 0) {
++		if (dbg_errcount == 0) {
+ 			/* don't free arg_list;	passed on to statement_list
+ 			 * non-terminal (empty rule action). See below.
+ 			 */
+@@ -1783,7 +1783,7 @@ yyreduce:
+ 		if ((yyvsp[0]) != NULL)
+ 			num = (yyvsp[0])->a_int;
+ 
+-		if (errcount != 0)
++		if (dbg_errcount != 0)
+ 			;
+ 		else if (in_commands)
+ 			yyerror(_("Can't use command `commands' for breakpoint/watchpoint commands"));
+@@ -2766,7 +2766,7 @@ yyerror(const char *mesg, ...)
+ 	vfprintf(out_fp, mesg, args);
+ 	fprintf(out_fp, "\n");
+ 	va_end(args);
+-	errcount++;
++	dbg_errcount++;
+ 	repeat_idx = -1;
+ }
+ 
+@@ -2788,9 +2788,9 @@ yylex(void)
+ 
+ 	yylval = (CMDARG *) NULL;
+ 
+-	if (errcount > 0 && lexptr_begin == NULL) {
++	if (dbg_errcount > 0 && lexptr_begin == NULL) {
+ 		/* fake a new line */
+-		errcount = 0;
++		dbg_errcount = 0;
+ 		return '\n';
+ 	}
+ 
+diff --git a/command.y b/command.y
+index 58880dee..96148eff 100644
+--- a/command.y
++++ b/command.y
+@@ -44,7 +44,7 @@ static bool want_nodeval = false;
+ static int cmd_idx = -1;		/* index of current command in cmd table */
+ static int repeat_idx = -1;		/* index of last repeatable command in command table */
+ static CMDARG *arg_list = NULL;		/* list of arguments */
+-static long errcount = 0;
++static long dbg_errcount = 0;
+ static char *lexptr_begin = NULL;
+ static bool in_commands = false;
+ static int num_dim;
+@@ -128,7 +128,7 @@ line
+ 	: nls
+ 	| command nls
+ 	  {
+-		if (errcount == 0 && cmd_idx >= 0) {
++		if (dbg_errcount == 0 && cmd_idx >= 0) {
+ 			Func_cmd cmdfunc;
+ 			bool terminate = false;
+ 			CMDARG *args;
+@@ -217,7 +217,7 @@ set_want_nodeval
+ eval_prologue
+ 	: D_EVAL set_want_nodeval opt_param_list nls
+ 	  {
+-		if (errcount == 0) {
++		if (dbg_errcount == 0) {
+ 			/* don't free arg_list;	passed on to statement_list
+ 			 * non-terminal (empty rule action). See below.
+ 			 */
+@@ -335,7 +335,7 @@ command
+ 		if ($2 != NULL)
+ 			num = $2->a_int;
+ 
+-		if (errcount != 0)
++		if (dbg_errcount != 0)
+ 			;
+ 		else if (in_commands)
+ 			yyerror(_("Can't use command `commands' for breakpoint/watchpoint commands"));
+@@ -1017,7 +1017,7 @@ yyerror(const char *mesg, ...)
+ 	vfprintf(out_fp, mesg, args);
+ 	fprintf(out_fp, "\n");
+ 	va_end(args);
+-	errcount++;
++	dbg_errcount++;
+ 	repeat_idx = -1;
+ }
+ 
+@@ -1039,9 +1039,9 @@ yylex(void)
+ 
+ 	yylval = (CMDARG *) NULL;
+ 
+-	if (errcount > 0 && lexptr_begin == NULL) {
++	if (dbg_errcount > 0 && lexptr_begin == NULL) {
+ 		/* fake a new line */
+-		errcount = 0;
++		dbg_errcount = 0;
+ 		return '\n';
+ 	}
+ 
+diff --git a/main.c b/main.c
+index 25a628ba..754f2050 100644
+--- a/main.c
++++ b/main.c
+@@ -1223,6 +1223,9 @@ catchsig(int sig)
+ 	        || sig == SIGBUS
+ #endif
+ 	) {
++		if (errcount > 0)	// assume a syntax error corrupted our data structures
++			exit(EXIT_FATAL);
++
+ 		set_loc(__FILE__, __LINE__);
+ 		msg(_("fatal error: internal error"));
+ 		/* fatal won't abort() if not compiled for debugging */
+@@ -1240,6 +1243,9 @@ catchsig(int sig)
+ static int
+ catchsegv(void *fault_address, int serious)
+ {
++	if (errcount > 0)	// assume a syntax error corrupted our data structures
++		exit(EXIT_FATAL);
++
+ 	set_loc(__FILE__, __LINE__);
+ 	msg(_("fatal error: internal error: segfault"));
+ 	fflush(NULL);
+diff --git a/test/Makefile.am b/test/Makefile.am
+index 13f53f95..98d4d1d0 100644
+--- a/test/Makefile.am
++++ b/test/Makefile.am
+@@ -1141,6 +1141,8 @@ EXTRA_DIST = \
+ 	synerr1.ok \
+ 	synerr2.awk \
+ 	synerr2.ok \
++	synerr3.awk \
++	synerr3.ok \
+ 	tailrecurse.awk \
+ 	tailrecurse.ok \
+ 	testext.ok \
+@@ -1261,7 +1263,7 @@ BASIC_TESTS = \
+ 	scalar sclforin sclifin setrec0 setrec1 \
+ 	sigpipe1 sortempty sortglos splitargv splitarr \
+ 	splitdef splitvar splitwht status-close strcat1 strnum1 strnum2 strtod \
+-	subamp subback subi18n subsepnm subslash substr swaplns synerr1 synerr2 \
++	subamp subback subi18n subsepnm subslash substr swaplns synerr1 synerr2 synerr3 \
+ 	tailrecurse tradanch tweakfld \
+ 	uninit2 uninit3 uninit4 uninit5 uninitialized unterm uparrfs uplus \
+ 	wideidx wideidx2 widesub widesub2 widesub3 widesub4 wjposer1 \
+diff --git a/test/Makefile.in b/test/Makefile.in
+index b23bd8ea..5b348528 100644
+--- a/test/Makefile.in
++++ b/test/Makefile.in
+@@ -1399,6 +1399,8 @@ EXTRA_DIST = \
+ 	synerr1.ok \
+ 	synerr2.awk \
+ 	synerr2.ok \
++	synerr3.awk \
++	synerr3.ok \
+ 	tailrecurse.awk \
+ 	tailrecurse.ok \
+ 	testext.ok \
+@@ -1518,7 +1520,7 @@ BASIC_TESTS = \
+ 	scalar sclforin sclifin setrec0 setrec1 \
+ 	sigpipe1 sortempty sortglos splitargv splitarr \
+ 	splitdef splitvar splitwht status-close strcat1 strnum1 strnum2 strtod \
+-	subamp subback subi18n subsepnm subslash substr swaplns synerr1 synerr2 \
++	subamp subback subi18n subsepnm subslash substr swaplns synerr1 synerr2 synerr3 \
+ 	tailrecurse tradanch tweakfld \
+ 	uninit2 uninit3 uninit4 uninit5 uninitialized unterm uparrfs uplus \
+ 	wideidx wideidx2 widesub widesub2 widesub3 widesub4 wjposer1 \
+@@ -3944,6 +3946,11 @@ synerr2:
+ 	@AWKPATH="$(srcdir)" $(AWK) -f $@.awk  >_$@ 2>&1 || echo EXIT CODE: $$? >>_$@
+ 	@-$(CMP) "$(srcdir)"/$@.ok _$@ && rm -f _$@
+ 
++synerr3:
++	@echo $@
++	@AWKPATH="$(srcdir)" $(AWK) -f $@.awk  >_$@ 2>&1 || echo EXIT CODE: $$? >>_$@
++	@-$(CMP) "$(srcdir)"/$@.ok _$@ && rm -f _$@
++
+ tailrecurse:
+ 	@echo $@
+ 	@AWKPATH="$(srcdir)" $(AWK) -f $@.awk  >_$@ 2>&1 || echo EXIT CODE: $$? >>_$@
+diff --git a/test/Maketests b/test/Maketests
+index f5840e5f..314f0c0b 100644
+--- a/test/Maketests
++++ b/test/Maketests
+@@ -1007,6 +1007,11 @@ synerr2:
+ 	@AWKPATH="$(srcdir)" $(AWK) -f $@.awk  >_$@ 2>&1 || echo EXIT CODE: $$? >>_$@
+ 	@-$(CMP) "$(srcdir)"/$@.ok _$@ && rm -f _$@
+ 
++synerr3:
++	@echo $@
++	@AWKPATH="$(srcdir)" $(AWK) -f $@.awk  >_$@ 2>&1 || echo EXIT CODE: $$? >>_$@
++	@-$(CMP) "$(srcdir)"/$@.ok _$@ && rm -f _$@
++
+ tailrecurse:
+ 	@echo $@
+ 	@AWKPATH="$(srcdir)" $(AWK) -f $@.awk  >_$@ 2>&1 || echo EXIT CODE: $$? >>_$@
+diff --git a/test/synerr3.awk b/test/synerr3.awk
+new file mode 100644
+index 00000000..49b9e30a
+--- /dev/null
++++ b/test/synerr3.awk
+@@ -0,0 +1 @@
++for (i = ) in foo bar baz
+diff --git a/test/synerr3.ok b/test/synerr3.ok
+new file mode 100644
+index 00000000..b8b9dd89
+--- /dev/null
++++ b/test/synerr3.ok
+@@ -0,0 +1,5 @@
++gawk: synerr3.awk:1: for (i = ) in foo bar baz
++gawk: synerr3.awk:1: ^ syntax error
++gawk: synerr3.awk:1: for (i = ) in foo bar baz
++gawk: synerr3.awk:1:          ^ syntax error
++EXIT CODE: 2
+-- 
+2.19.1
+
