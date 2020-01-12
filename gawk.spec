@@ -3,48 +3,27 @@
 %global gawk_api_minor %(tar -xf %{name}-%{version}.tar.xz %{name}-%{version}/gawkapi.h --to-stdout |\
 			 egrep -i "gawk_api_minor.*[0-9]+" | egrep -o "[0-9]")
 Name:		gawk
-Version:	4.2.1
-Release:	5
+Version:	5.0.1
+Release:	1
 License:	GPLv3+ and GPLv2+ and LGPLv2+ and BSD
 Summary:	The GNU version of the AWK text processing utility
 URL:		https://www.gnu.org/software/gawk/
 Source0:	https://ftp.gnu.org/gnu/gawk/gawk-%{version}.tar.xz
-Patch0:		gawk-4.2.1-000-add-support-for-a-and-A-in-printf.patch
-Patch1: 	gawk-4.2.1-001-remove-the-tail-recursion-optimization.patch
-Patch2: 	gawk-4.2.1-002-copy-MPZ-MPFR-bits-also-in-r_dupnode.patch
-Patch3: 	gawk-4.2.1-003-fix-rebuilding-records-if-using-API-parser.patch
-Patch4: 	gawk-4.2.1-004-fix-a-corner-case-with-EPIPE-to-stdout-stderr.patch
-Patch5:		gawk-4.2.1-200-fix-build-for-f29.patch
-Patch6000:	Bug-fix-to-extract.awk.-Rerun-and-update-files.patch
-Patch6001:	Further-fixes-to-extract.awk.patch
-Patch6002: 	Huge-numeric-values-that-overflow-should-convert-to-.patch
-Patch6003: 	Fix-coredump-from-IGNORECASE-array-sorting.patch
-Patch6004:	Bug-fix-for-trailing-backslash-in-dynamic-regexp.patch
-Patch6005:	Fix-problem-with-MPFR-conversion-to-int-from-hex-num.patch
-Patch6006:	Fix-small-potential-memory-leak-for-intdiv.patch
-Patch6007:	Bug-fix-in-support-regexec.c.patch
-Patch6008:      0040-Fix-core-dump-upon-syntax-error.patch
-Patch6009:      0045-Fix-bug-with-in-FS.patch
-Patch6010:      refix-remove-the-tail-recursion-optimization.patch
 
 BuildRequires:	git gcc automake grep
 BuildRequires:	bison texinfo texinfo-tex ghostscript texlive-ec texlive-cm-super glibc-all-langpacks
 BuildRequires:	libsigsegv-devel mpfr-devel readline-devel
 Requires:	filesystem >= 3
 
-
 Provides:	/bin/awk
 Provides:	/bin/gawk
 Provides:	gawk(abi) = %{gawk_api_major}.%{gawk_api_minor}
-
-
 
 %description
 The gawk package is the GNU implementation of awk.
 The awk utility interprets a special-purpose programming language that
 makes it possible to handle simple data-reformatting jobs with just a
 few lines of code.
-
 
 %package devel
 Summary:          Header file for gawk extensions development
@@ -124,6 +103,12 @@ install -m 0644 -p doc/gawkinet.{pdf,ps} ${RPM_BUILD_ROOT}%{_docdir}/%{name}
 %{_datadir}/locale/*
 
 %changelog
+* Sun Jan 12 2020 openEuler Buildteam <buildteam@openeuler.org> - 5.0.1-1
+- Type:enhancement
+- ID:NA
+- SUG:restart
+- DESC:update to 5.0.1
+
 * Mon Dec 16 2019 openEuler Buildteam <buildteam@openeuler.org> - 4.2.1-5
 - Type:enhancement
 - ID:NA
