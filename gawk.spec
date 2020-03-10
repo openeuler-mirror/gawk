@@ -4,11 +4,15 @@
 			 egrep -i "gawk_api_minor.*[0-9]+" | egrep -o "[0-9]")
 Name:		gawk
 Version:	5.0.1
-Release:	1
+Release:	2
 License:	GPLv3+ and GPLv2+ and LGPLv2+ and BSD
 Summary:	The GNU version of the AWK text processing utility
 URL:		https://www.gnu.org/software/gawk/
 Source0:	https://ftp.gnu.org/gnu/gawk/gawk-%{version}.tar.xz
+
+Patch0:         gawk-inplace-namespace-part1.patch
+Patch1:         gawk-inplace-namespace-part2.patch
+Patch2:         gawk-inplace-namespace-part3.patch
 
 BuildRequires:	git gcc automake grep
 BuildRequires:	bison texinfo texinfo-tex ghostscript texlive-ec texlive-cm-super glibc-all-langpacks
@@ -103,6 +107,12 @@ install -m 0644 -p doc/gawkinet.{pdf,ps} ${RPM_BUILD_ROOT}%{_docdir}/%{name}
 %{_datadir}/locale/*
 
 %changelog
+* Tue Mar 10 2020 openEuler Buildteam <buildteam@openeuler.org> - 5.0.1-2
+- Type:enhancement
+- ID:NA
+- SUG:NA
+- DESC:Fix backward compatibility of inplace extension
+
 * Sun Jan 12 2020 openEuler Buildteam <buildteam@openeuler.org> - 5.0.1-1
 - Type:enhancement
 - ID:NA
