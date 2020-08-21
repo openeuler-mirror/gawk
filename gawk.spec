@@ -4,7 +4,7 @@
 			 egrep -i "gawk_api_minor.*[0-9]+" | egrep -o "[0-9]")
 Name:		gawk
 Version:	5.0.1
-Release:	2
+Release:	3
 License:	GPLv3+ and GPLv2+ and LGPLv2+ and BSD
 Summary:	The GNU version of the AWK text processing utility
 URL:		https://www.gnu.org/software/gawk/
@@ -107,6 +107,12 @@ install -m 0644 -p doc/gawkinet.{pdf,ps} ${RPM_BUILD_ROOT}%{_docdir}/%{name}
 %{_datadir}/locale/*
 
 %changelog
+* Tue Aug 21 2020 openEuler Buildteam <buildteam@openeuler.org> - 5.0.1-3
+- Type:rebuild
+- ID:NA
+- SUG:NA
+- DESC:rebuild for requirement package update
+
 * Tue Mar 10 2020 openEuler Buildteam <buildteam@openeuler.org> - 5.0.1-2
 - Type:enhancement
 - ID:NA
