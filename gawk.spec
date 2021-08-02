@@ -4,13 +4,13 @@
 			 egrep -i "gawk_api_minor.*[0-9]+" | egrep -o "[0-9]")
 Name:		gawk
 Version:	5.1.0
-Release:	1
+Release:	2
 License:	GPLv3+ and GPLv2+ and LGPLv2+ and BSD
 Summary:	The GNU version of the AWK text processing utility
 URL:		https://www.gnu.org/software/gawk/
 Source0:	https://ftp.gnu.org/gnu/gawk/gawk-%{version}.tar.xz
 
-BuildRequires:	git gcc automake grep
+BuildRequires:	gcc automake grep
 BuildRequires:	bison texinfo texinfo-tex ghostscript texlive-ec texlive-cm-super glibc-all-langpacks
 BuildRequires:	libsigsegv-devel mpfr-devel readline-devel
 Requires:	filesystem >= 3
@@ -47,7 +47,7 @@ Requires:       %{name} = %{version}-%{release}
 This subpackage provides with language releated files and locales for gawk.
 
 %prep
-%autosetup -n %{name}-%{version} -S git
+%autosetup -n %{name}-%{version} -p1
 
 %build
 autoreconf -fv
@@ -103,6 +103,9 @@ install -m 0644 -p doc/gawkinet.{pdf,ps} ${RPM_BUILD_ROOT}%{_docdir}/%{name}
 %{_datadir}/locale/*
 
 %changelog
+* Mon Aug 02 2021 chenyanpanHW <chenyanpan@huawei.com> - 5.1.0-2
+- DESC: delete -S git from %autosetup, and delete BuildRequires git
+
 * Thu Jul 30 2020 yang_zhuang_zhuang <yangzhuangzhuang1@huawei.com> - 5.1.0-1
 - Type:enhancement
 - ID:NA
