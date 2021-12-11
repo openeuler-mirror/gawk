@@ -3,7 +3,7 @@
 %global gawk_api_minor %(tar -xf %{name}-%{version}.tar.xz %{name}-%{version}/gawkapi.h --to-stdout |\
 			 egrep -i "gawk_api_minor.*[0-9]+" | egrep -o "[0-9]")
 Name:		gawk
-Version:	5.1.0
+Version:	5.1.1
 Release:	1
 License:	GPLv3+ and GPLv2+ and LGPLv2+ and BSD
 Summary:	The GNU version of the AWK text processing utility
@@ -103,6 +103,12 @@ install -m 0644 -p doc/gawkinet.{pdf,ps} ${RPM_BUILD_ROOT}%{_docdir}/%{name}
 %{_datadir}/locale/*
 
 %changelog
+* Sat Dec 11 2021 wangjie <wangjie375@huawei.com> - 5.1.1-1
+- Type:enhancement
+- ID:NA
+- SUG:NA
+- DESC:Update gawk to  5.1.1-1
+
 * Thu Jul 30 2020 yang_zhuang_zhuang <yangzhuangzhuang1@huawei.com> - 5.1.0-1
 - Type:enhancement
 - ID:NA
