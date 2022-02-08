@@ -3,8 +3,8 @@
 %global gawk_api_minor %(tar -xf %{name}-%{version}.tar.xz %{name}-%{version}/gawkapi.h --to-stdout |\
 			 egrep -i "gawk_api_minor.*[0-9]+" | egrep -o "[0-9]")
 Name:		gawk
-Version:	5.1.0
-Release:	2
+Version:	5.1.1
+Release:	1
 License:	GPLv3+ and GPLv2+ and LGPLv2+ and BSD
 Summary:	The GNU version of the AWK text processing utility
 URL:		https://www.gnu.org/software/gawk/
@@ -103,6 +103,12 @@ install -m 0644 -p doc/gawkinet.{pdf,ps} ${RPM_BUILD_ROOT}%{_docdir}/%{name}
 %{_datadir}/locale/*
 
 %changelog
+* Tue Feb 8 2022 yixiangzhike <yixiangzhike007@163.com> - 5.1.1-1
+- Type:enhancement
+- ID:NA
+- SUG:NA
+- DESC:Update gawk to  5.1.1
+
 * Mon Aug 02 2021 chenyanpanHW <chenyanpan@huawei.com> - 5.1.0-2
 - DESC: delete -S git from %autosetup, and delete BuildRequires git
 
