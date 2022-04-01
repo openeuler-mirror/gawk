@@ -1,0 +1,43 @@
+From e03c8822c48bedfe6cc7fbd5a9382d9630de6494 Mon Sep 17 00:00:00 2001
+From: "Andrew J. Schorr" <aschorr@telemetry-investments.com>
+Date: Tue, 7 Dec 2021 12:00:22 -0500
+Subject: [PATCH] Reorder statements in iolint to try to eliminate a race
+ condition.
+
+---
+ test/iolint.awk | 2 +-
+ test/iolint.ok  | 2 +-
+ 2 files changed, 2 insertions(+), 2 deletions(-)
+
+diff --git a/test/iolint.awk b/test/iolint.awk
+index 042f743..3ebaf43 100644
+--- a/test/iolint.awk
++++ b/test/iolint.awk
+@@ -49,8 +49,8 @@ BEGIN {
+ 	# `%.*s' used for output pipe and two-way pipe
+ 	# Not doing |& due to race condition and signals. sigh
+ 	cat = "cat"
+-	print "hello" | "cat"
+ 	print "/bin/cat \"$@\"" > "cat"
++	print "hello" | "cat"
+ 	print close("cat")
+ 	print close("cat")
+ 	fflush()
+diff --git a/test/iolint.ok b/test/iolint.ok
+index 7a165aa..860bcfb 100644
+--- a/test/iolint.ok
++++ b/test/iolint.ok
+@@ -20,9 +20,9 @@ gawk: iolint.awk:42: warning: `echo hello' used for input pipe and output file
+ 0
+ 0
+ gawk: iolint.awk:53: warning: `cat' used for output file and output pipe
+-0
+ hello
+ 0
++0
+ gawk: iolint.awk:67: warning: `eval $CMD_TO_RUN' used for input pipe and output pipe
+ 0
+ 0
+-- 
+1.8.3.1
+
