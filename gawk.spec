@@ -4,11 +4,15 @@
 			 egrep -i "gawk_api_minor.*[0-9]+" | egrep -o "[0-9]")
 Name:		gawk
 Version:	5.1.1
-Release:	1
+Release:	2
 License:	GPLv3+ and GPLv2+ and LGPLv2+ and BSD
 Summary:	The GNU version of the AWK text processing utility
 URL:		https://www.gnu.org/software/gawk/
 Source0:	https://ftp.gnu.org/gnu/gawk/gawk-%{version}.tar.xz
+
+Patch1:         Disable-racy-test-in-test-iolint.awk.patch
+Patch2:         Restore-removed-test-in-test-iolint.awk.patch
+Patch3:         Reorder-statements-in-iolint-to-try-to-eliminate-a-r.patch
 
 BuildRequires:	gcc automake grep
 BuildRequires:	bison texinfo texinfo-tex ghostscript texlive-ec texlive-cm-super glibc-all-langpacks
@@ -103,6 +107,12 @@ install -m 0644 -p doc/gawkinet.{pdf,ps} ${RPM_BUILD_ROOT}%{_docdir}/%{name}
 %{_datadir}/locale/*
 
 %changelog
+* Sat Apr 2 2022 zoulin <zoulin13@h-partners.com> - 5.1.1-2
+- Type:enhancement
+- ID:NA
+- SUG:NA
+- DESC:fix test case probabilistic fail
+
 * Tue Feb 8 2022 yixiangzhike <yixiangzhike007@163.com> - 5.1.1-1
 - Type:enhancement
 - ID:NA
