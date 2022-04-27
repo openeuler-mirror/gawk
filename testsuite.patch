@@ -1,0 +1,16 @@
+--- a/test/inf-nan-torture.ok	2020-12-21 02:15:25.000000000 +0800
++++ b/test/inf-nan-torture.ok	2022-04-27 14:44:23.126762200 +0800
+@@ -1,7 +1,7 @@
+ 1 -inf -inf
+ 2 -inform 0
+ 3 inform 0
+-4 -nan -nan
++4 +nan +nan
+ 5 -nancy 0
+ 6 nancy 0
+ 7 -123 -123
+--- a/test/inf-nan-torture.in	2020-12-21 02:15:25.000000000 +0800
++++ b/test/inf-nan-torture.in	2022-04-27 14:43:47.158984200 +0800
+@@ -1 +1 @@
+--inf -inform inform -nan -nancy nancy -123 0 123 +123 nancy +nancy +nan inform +inform +inf
++-inf -inform inform +nan -nancy nancy -123 0 123 +123 nancy +nancy +nan inform +inform +inf
